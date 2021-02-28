@@ -1,0 +1,568 @@
+---
+title: "Census and factors"
+output: html_notebook
+---
+
+# Factors, and the UK census
+
+Soon we will explore the data from the [2011 UK
+census](https://www.ons.gov.uk/census/2011census) from the Office of [National
+Statistics](https://www.ons.gov.uk) (ONS).
+
+But to start, we explore R *factors*.
+
+Factors are a special type of *vector* in R.
+
+## About filling in this notebook
+
+Remember to run the chunks of code as you go.
+
+Some of the chunks are just for you to run.  Others ask you to fill in some
+code.  These often have markers like `...` to tell you where to fill in the
+code.
+
+## Revision on vectors
+
+As you recall, a vector is a sequence of values.  It can be a sequence of
+numbers.  Here we use the `c` function to Combine the numbers into a vector.
+
+```{r}
+some_numbers <- c(5, 2, 3, 1, 4, 3, 2, -1, 1)
+some_numbers
+```
+
+The vector has a `length`:
+
+```{r}
+length(some_numbers)
+```
+
+It can also be a sequence of strings.  Strings are bits of text.  To make
+a string, we put the text we want between quotes, like:
+
+```{r}
+'this'
+```
+
+Here is a vector of strings.  Notice the quote characters around each string,
+to tell R this is a bit of text, rather than a variable name or a function.
+
+```{r}
+some_strings <- c('good', 'bad', 'ugly', 'good', 'ugly')
+some_strings
+```
+
+Make a new vector of strings called `disappointing_finale` that has the following strings:
+
+* Star
+* Wars
+* The
+* Rise
+* of
+* Skywalker
+
+```{r}
+disappointing_finale <- ...
+# Show the number of words
+length(disappointing_finale)
+```
+
+## Factors
+
+Factors are special types of vectors.
+
+Factors express categories.  They are important in several ways.  One way they
+are important is telling R that the data identify categories.  R can then treat
+these values differently in a variety of ways.
+
+Imagine for example that I recorded my friends grades in A level geography with
+numbers.  I decided to use the code 1 for an A, 2 for a B and so on.  -1 means
+a U grade.  Yes, I have one friend who is not good at geography.
+
+```{r}
+friends_grades <- c(2, 4, 5, 1, 3, 3, 2, -1, 1)
+# Show the vector of grades
+friends_grades
+```
+
+Show the type of the `friends_grades` vector using `class`:
+
+```{r}
+...
+```
+
+I intend the numbers in `friends_grades` to express categories --- category
+1 for people who got an A, 2 for people who got a B, and so on.
+
+We can make a factor out of a vector by using the `factor` function.
+
+```{r}
+# Run this chunk
+friends_factor <- factor(friends_grades)
+friends_factor
+```
+
+Notice how the display changed, when R shows us the factor.  First R shows us
+the numbers, as it did before, for `friends_grades`.  Below that, R shows the
+"levels" of the factor.  Notice that the levels are also the unique values in
+the vector.  The levels are the *categories* contained in the factor.  That is,
+all the values of 1 in the vector are now in a category (level) "1", all the
+values of 2 in the category (level) "2" and so on.  The levels are *labels* for
+the categories. This might not be obvious yet.  We can see the levels of
+a factor by using the `levels` function:
+
+```{r}
+# Run this chunk
+levels(friends_factor)
+```
+
+Notice too that the levels are actually *strings* (bits of text).  The output
+shows us the bit of text "-1" for the value -1, "1" for the value 1, and so on.
+
+We often want to set more useful labels.
+
+For example, we know that the values in `friends_factor` are codes for my
+friends' grades at A-level: -1 for "U" grade, 1 for "A" and so on.
+
+We can set the levels (labels) of a factor directly.  First we make a vector of
+strings that have the labels we want:
+
+```{r}
+# A vector of strings with the labels we want
+grades <- c('U', 'A', 'B', 'C', 'D', 'E', 'F')
+grades
+```
+
+We use this vector to set the labels for the levels.
+
+```{r}
+# Set the labels for the levels.
+levels(friends_factor) <- grades
+friends_factor
+```
+
+Notice that the display changed completely.  All the numbers disappeared.  You
+only see the labels for each value now.
+
+Notice also that we had to give the labels for the level *in the same order* as
+the previous labels.  Previously we had "-1", "1", "2" etc.  We had to specify
+the label for "-1" first ("U"), then the label for "1" ("A") and so on.
+
+As you will see, this ability of factors to give labels to categories can be
+very useful for the common case where R has columns of data with numerical or
+string codes, that refer to categories.  The factor and its levels makes it
+much easier to see what the values mean.
+
+## Labeling the UK census data
+
+Now we are going to work on some codes from the [2011 UK
+census](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile/variablelist).
+If you follow the link, you will find that the UK census records data about
+people as numbers, where the numbers are codes.  For example, it has codes for
+marital status, where the codes mean:
+
+* 1=Single (never married or never registered a same-sex civil partnership)
+* 2=Married or in a registered same-sex civil partnership 
+* 3=Separated but still legally married or separated but still legally in
+  a same-sex civil partnership
+* 4=Divorced or formerly in a same-sex civil partnership which is now legally
+  dissolved
+* 5=Widowed or surviving partner from a same-sex civil partnership
+
+Here is a tiny snippet from the full [UK microdata teaching
+file](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile).
+The snippet only has 10 rows and 3 columns; the full dataset has many more
+rows and columns, as you will soon see.
+
+```{r}
+# Load snippet
+census_sample <- read.csv('census_snippet.csv')
+census_sample
+```
+
+Use the `str` function on this data frame to show the column names and data
+types:
+
+```{r}
+#- Use the "str" function to show column names, types
+...
+```
+
+In fact these numbers are codes for categories.  We can make this clear to R
+by converting the columns to factors.
+
+This is how I convert the `Sex` column to a factor:
+
+```{r}
+# Run this chunk
+census_sample$Sex <- factor(census_sample$Sex)
+census_sample
+```
+
+I see from the [variable
+list](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile/variablelist)
+that the values in the `Sex` column have these meanings:
+
+* 1=Male
+* 2=Female
+
+First I check the current levels:
+
+```{r}
+# Run this chunk.
+levels(census_sample$Sex)
+```
+
+Here is how I set the levels of the `Sex` factor, applying the names in the
+same order as the current levels:
+
+```{r}
+# Run this chunk.
+levels(census_sample$Sex) <- c('Male', 'Female')
+census_sample
+```
+
+Now your turn.  Make the `Marital.Status` column into a factor:
+
+```{r}
+#- Convert Marital.Status column of "census_sample" into a factor.
+census_sample$Marital.Status <- ...
+# Show the data frame
+census_sample
+```
+
+Show the current levels of the `Marital.Status` column:
+
+```{r}
+#- Show the levels of the Marital.Status column
+levels(...)
+```
+
+We want new labels for this factor.
+
+* "1" should get the new label "Single"
+* "2" should get the new label "Married"
+* "3" should get the new label "Separated"
+* "4" should get the new label "Divorced"
+
+Make a vector `new_labels` that contains the strings with the new labels above:
+
+```{r}
+new_labels <- c(...)
+#- Show the vector
+new_labels
+```
+
+Use `new_labels` to set the labels for the levels of the `Marital.Status`
+factor.
+
+```{r}
+#- Set the labels of the levels of the 'Marital.Status' factor
+levels(...) <- ...
+#- Show the data frame
+census_sample
+```
+
+Now you know factors, you are ready for the full dataset.
+
+## The 2011 census microdata dataset
+
+We are looking at the full version of the sample dataset called the [microdata
+teaching
+file](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile)
+(MTF).
+
+We will look at the relationships of ethnicity, marital status, estimated
+social class and a rating of general health.
+
+Here is the [user guide for the
+MTF](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile/microdatauserguide).
+
+The [MTF variable
+list](https://www.ons.gov.uk/census/2011census/2011censusdata/censusmicrodata/microdatateachingfile/variablelist)
+gives a list of all the variable in the MTF, with the meaning of their codes.
+
+First we load a complete, unmodified copy of the MTF into R as a data frame.
+
+Be patient - this can take several seconds, because the data file is reasonably
+large.
+
+```{r}
+# Read the UK 2011 census teaching file.
+# The skip=1 option skips the first line of the file, which is
+# an information line pointing to the website.
+census <- read.csv('2011 Census Microdata Teaching File.csv', skip=1)
+# Show the first six rows.
+head(census)
+```
+
+Show the structure of the data frame with the `str` function:
+
+```{r}
+#- Show structure of "census" data frame.
+...
+```
+
+First we want to drop some rows.
+
+As you will see in the MTF user guide (above), many of the columns in the MTF
+file have undefined values for everyone other than "usual residents".
+
+"Usual residents" have a value of 1 in the `Population.Base` column.  We will
+start by dropping all the rows but those for the "usual residents".
+
+First we get the `Population.Base` values into a variable for convenience.
+
+```{r}
+#- Make a new variable "pop_base" that contains the values
+#- of the "Population.Base" column of the "census" data
+#- frame.
+pop_base <- ...
+# Show the first six values of "pop_base"
+head(pop_base)
+```
+
+Next we make a Boolean vector that we will soon use to select the rows that we
+want.
+
+Make a Boolean vector that has `TRUE` in positions where `pop_base` is equal to
+1, and `FALSE` otherwise.  Store it in the variable `is_usual`.
+
+```{r}
+#- Make a Boolean vector with TRUE in positions where
+#- "pop_base" is equal to 1. Store in "is_usual".
+is_usual <- ...
+# Show the first six values
+head(is_usual)
+```
+
+Use `subset` to make a new data frame from `census` that only includes the rows
+where the corresponding value of `is_usual` is `TRUE`.  Call the new data frame
+`usual`.
+
+```{r}
+#- Use "subset" to make new data frame called "usual"
+#- that is a subset of "census".  "usual" will include
+#- only the rows corresponding to "TRUE" values in "is_usual"
+usual <- ...
+# Show the first six rows of "usual"
+head(usual)
+```
+
+Among other columns, we are interested in the `Approximated.Social.Grade`.
+These are estimated [NRS social
+grades](https://en.wikipedia.org/wiki/NRS_social_grade) for each person (and
+therefore, for each row).
+
+Here is the explanation of the values in that variable (column) from the MTF
+variable list:
+
+* 1=AB
+* 2=C1
+* 3=C2
+* 4=DE
+* -9: No code required (People aged under 16, people resident in communal
+  establishments, and students or schoolchildren living away during term-time).
+
+First we look at the unique values we have for `Approximated.Social.Grade` in
+the `usual` data frame.
+
+Do do this, we use the `table` function.  You'll see more on this in the second Datacamp tutorial.
+
+```{r}
+# Use "table" to show the values and counts for the
+# "Approximated.Social.Grade" column in "usual"
+table(usual$Approximated.Social.Grade)
+```
+
+We see that many of the cases in `usual` have -9 as the code for their
+`Approximated.Social.Grade`.  One explanation for this, as you see above, is
+that the respondent is less than 16.
+
+We can use `table` with more than one vector, to get a cross-tabulation of
+counts.  Here we use the `Approximated.Social.Grade` column of `usual`, and
+the `Age` category column, to show a cross-tabulation of social grade by age
+category.
+
+```{r}
+# Use table to show a cross-tabulation of the
+# "Approximated.Social.Grade" and "Age" columns of "usual"
+table(usual$Approximated.Social.Grade, usual$Age)
+```
+
+This should confirm that most of the -9 values in `Approximated.Social.Grade`
+are for respondents with value 1 in `Age`.  1 means 0-15 years old; see the
+variables list page.
+
+We want to analyze `Approximated.Social.Grade`, so we start by dropping all the
+rows with -9 in that column.
+
+The first step is to make a Boolean vector that has TRUE where
+`Approximated.Social.Grade` column of `usual` has values greater than 0, and
+FALSE otherwise:
+
+```{r}
+is_graded <- ...
+# Show the first six values
+head(is_graded)
+```
+
+Use `subset` to put the results into a new data frame, called `ug`, short for
+Usual Graded.
+
+```{r}
+ug <- subset(...)
+# Show the first 6 rows
+head(ug)
+```
+
+Show a table for `Approximated.Social.Grade` from the `ug` data frame, to
+confirm we have lost all the -9 values:
+
+```{r}
+table(...)
+```
+
+Now we have a somewhat cleaned dataset, we need to make the tables and other
+analyses easier to understand, by converting columns to factors.
+
+Convert the following columns of `ug` to factors, using the skills you
+acquired earlier in this notebook:
+
+* `Sex`
+* `Ethnic.Group`
+* `Approximated.Social.Grade`
+* `Marital.Status`
+
+The `str` function on the `ug` data frame will show which columns are factors,
+when you have done your conversions.
+
+```{r}
+#- Convert columns above to factors
+ug$Sex <- ...
+...
+...
+...
+# Show column types for "ug"
+str(ug)
+```
+
+Next we want to give readable labels to the levels in our new factors.
+
+For example, here I'm following the steps further up this notebook, to set the
+labels (levels) for the `Sex` column.
+
+```{r}
+# Run this chunk.
+# Set levels for "Sex" column.
+levels(ug$Sex) <- c('Male', 'Female')
+# Show the levels in table output.
+table(ug$Sex)
+```
+
+Follow the same recipe to set:
+
+* levels of `Ethnic.Group` to be 'White', 'Mixed', 'Asian', 'Black', 'Chinese/other';
+* levels of `Approximated.Social.Grade` to be 'AB', 'C1', 'C2', 'DE';
+* levels of `Marital.Status` to be 'Single', 'Married', 'Separated', 'Divorced', 'Widowed'
+
+```{r}
+#- Set levels for columns of "ug", as above.
+levels(...) <- ...
+...
+...
+# Show the structure of "ug"
+str(ug)
+```
+
+## The analysis proper
+
+Do social grades differ between ethnic groups?
+
+Use `table` to make a cross-tabulation of counts by `Ethnic.Group` and
+`Approximated.Social.Grade`.  Store this table as `eg_by_sg`.
+
+```{r}
+eg_by_sg <- ...
+# Display the table.
+eg_by_sg
+```
+
+The `mosaicplot` function is a very nice way of showing proportions in
+cross-tabulations.  It shows each entry (cell) in the table as a rectangle.  The area of the rectangle shows the proportion of the values for the whole column that are contained in this cell.
+
+This is easiest to see by example.  Here we use `mosaicplot` to do a mosaic
+plot of `eg_by_sg`.  You will see more on these in the second Datacamp
+tutorial.
+
+```{r}
+mosaicplot(eg_by_sg)
+```
+
+For reflection - what conclusions can you draw about ethnic group and social
+class?
+
+Does social grade differ by marital status?
+
+```{r}
+#- Make a new table "ms_by_sg" that is the cross-tabulation of
+#- marital status by social grade.
+ms_by_sg <- ...
+# Show "ms_by_sg"
+ms_by_sg
+```
+
+Do a mosaic plot of `ms_by_sg`
+
+```{r}
+#- Mosaicplot of "ms_by_sg"
+...
+```
+
+For reflection - what conclusions can you draw about the effect of marital
+status on social grade, if any?
+
+## Does health differ by social grade?
+
+Here are the codes for the `Health` column of the dataset:
+
+* 1=Very good health
+* 2=Good health
+* 3=Fair health
+* 4=Bad health
+* 5=Very bad health
+* -9: not coded.
+
+```{r}
+#- Make a table to cross-tabulate `Health` against social grade.
+h_by_sg <- ...
+# Display table with a mosaicplot
+mosaicplot(h_by_sg)
+```
+
+For reflection - what conclusions can you draw?
+
+What is the relationship of health and ethnic group?  Do a mosaic plot to investigate:
+
+```{r}
+#- mosaicplot of health against social group
+...
+```
+
+Make a mosaic plot to show the relationship of health and gender (encoded in
+the `Sex` column of the data frame).
+
+```{r}
+#- mosaicplot of health against sex
+...
+```
+
+## In the West Midlands
+
+If you have time left over, use `subset` to select only the respondents from
+the West Midlands.  See the variable list page at the top for the values you
+will need to do this.  Call this data frame `ug_wm`.
+
+Look at the relationship of ethnic group and social grade for this dataset.  Does it differ from the pattern of the whole population?
+
+How about the relationship of health and social group?
